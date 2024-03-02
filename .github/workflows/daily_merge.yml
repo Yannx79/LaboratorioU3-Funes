@@ -1,0 +1,33 @@
+name: Daily Merge
+
+on:
+  schedule:
+    - cron: '0 0 * * *'  # Se ejecutará todos los días a las 00:00 UTC
+
+jobs:
+  merge:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: Merge branches
+      run: |
+        git config --local user.email "yannfscz@gmail.com"
+        git config --local user.name "Yannick Funes"
+        
+        git checkout master
+        git pull origin master
+
+        git checkout dev
+        git pull origin dev
+
+        # Realizar el merge solo si no hay conflictos
+        if git merge --no-ff --no-commit master; then
+          git commit -m "Automated merge from master to dev"
+          git push origin dev
+        else
+          echo "Merge failed due to conflicts"
+          # Puedes agregar acciones adicionales en caso de conflictos
+        fi
